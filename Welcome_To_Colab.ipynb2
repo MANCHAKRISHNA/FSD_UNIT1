@@ -1,0 +1,159 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MANCHAKRISHNA/FSD_UNIT1/blob/main/Welcome_To_Colab.ipynb2\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Module 1: Data Loading and Augmentation Using Keras\n",
+        "\n",
+        "import os\n",
+        "import random\n",
+        "import numpy as np\n",
+        "from tensorflow.keras.preprocessing.image import load_img, img_to_array\n",
+        "from tensorflow.keras.utils import Sequence\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Set your actual image folder paths here\n",
+        "# -----------------------------\n",
+        "base_dir = \"./images_dataSAT\" # Define the base directory for the images\n",
+        "class_0_dir = os.path.join(base_dir, \"class_0_non_agri\")\n",
+        "class_1_dir = os.path.join(base_dir, \"class_1_agri\")\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 1: Create list of all image paths\n",
+        "# -----------------------------\n",
+        "all_image_paths = []\n",
+        "\n",
+        "# Add class_0 images\n",
+        "for file in os.listdir(class_0_dir):\n",
+        "    if file.lower().endswith((\".png\", \".jpg\", \".jpeg\")):\n",
+        "        all_image_paths.append((os.path.join(class_0_dir, file), 0))\n",
+        "\n",
+        "# Add class_1 images\n",
+        "for file in os.listdir(class_1_dir):\n",
+        "    if file.lower().endswith((\".png\", \".jpg\", \".jpeg\")):\n",
+        "        all_image_paths.append((os.path.join(class_1_dir, file), 1))\n",
+        "\n",
+        "print(f\"Total images found: {len(all_image_paths)}\")\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 2: Create temp list and print 5 random images with labels\n",
+        "# -----------------------------\n",
+        "random.shuffle(all_image_paths)\n",
+        "image_paths, labels = zip(*all_image_paths)\n",
+        "temp = list(zip(image_paths, labels))\n",
+        "\n",
+        "print(\"5 random images with labels:\")\n",
+        "for img_path, label in random.sample(temp, 5):\n",
+        "    print(f\"Path: {img_path}, Label: {label}\")\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 3: Custom Data Generator\n",
+        "# -----------------------------\n",
+        "class CustomDataGenerator(Sequence):\n",
+        "    def __init__(self, image_paths, labels, batch_size=8, img_size=(128, 128), shuffle=True):\n",
+        "        self.image_paths = image_paths\n",
+        "        self.labels = labels\n",
+        "        self.batch_size = batch_size\n",
+        "        self.img_size = img_size\n",
+        "        self.shuffle = shuffle\n",
+        "        self.indices = np.arange(len(self.image_paths))\n",
+        "        if self.shuffle:\n",
+        "            np.random.shuffle(self.indices)\n",
+        "\n",
+        "    def __len__(self):\n",
+        "        return int(np.ceil(len(self.image_paths) / self.batch_size))\n",
+        "\n",
+        "    def __getitem__(self, index):\n",
+        "        batch_indices = self.indices[index*self.batch_size:(index+1)*self.batch_size]\n",
+        "        batch_images = []\n",
+        "        batch_labels = []\n",
+        "\n",
+        "        for i in batch_indices:\n",
+        "            img = load_img(self.image_paths[i], target_size=self.img_size)\n",
+        "            img_array = img_to_array(img) / 255.0\n",
+        "            batch_images.append(img_array)\n",
+        "            batch_labels.append(self.labels[i])\n",
+        "\n",
+        "        return np.array(batch_images), np.array(batch_labels)\n",
+        "\n",
+        "    def on_epoch_end(self):\n",
+        "        if self.shuffle:\n",
+        "            np.random.shuffle(self.indices)\n",
+        "\n",
+        "# Generate one batch (Task 3)\n",
+        "data_gen = CustomDataGenerator(image_paths, labels, batch_size=8)\n",
+        "x_batch, y_batch = data_gen[0]\n",
+        "print(\"\\nBatch images shape:\", x_batch.shape)\n",
+        "print(\"Batch labels:\", y_batch)\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 4: Validation Data Generator (batch size = 8)\n",
+        "# -----------------------------\n",
+        "split_ratio = 0.8\n",
+        "split_index = int(len(image_paths) * split_ratio)\n",
+        "\n",
+        "train_paths, val_paths = image_paths[:split_index], image_paths[split_index:]\n",
+        "train_labels, val_labels = labels[:split_index], labels[split_index:]\n",
+        "\n",
+        "val_gen = CustomDataGenerator(val_paths, val_labels, batch_size=8, shuffle=False)\n",
+        "x_val_batch, y_val_batch = val_gen[0]\n",
+        "\n",
+        "print(\"\\nValidation batch shape:\", x_val_batch.shape)\n",
+        "print(\"Validation batch labels:\", y_val_batch)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "8LS5VzNoUsZG",
+        "outputId": "4eac4042-8d02-4e5c-b215-5691f3b7a40c"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Total images found: 10\n",
+            "5 random images with labels:\n",
+            "Path: ./images_dataSAT/class_1_agri/dummy_agri_1.jpg, Label: 1\n",
+            "Path: ./images_dataSAT/class_0_non_agri/dummy_non_agri_0.jpg, Label: 0\n",
+            "Path: ./images_dataSAT/class_0_non_agri/dummy_non_agri_2.jpg, Label: 0\n",
+            "Path: ./images_dataSAT/class_0_non_agri/dummy_non_agri_4.jpg, Label: 0\n",
+            "Path: ./images_dataSAT/class_1_agri/dummy_agri_3.jpg, Label: 1\n",
+            "\n",
+            "Batch images shape: (8, 128, 128, 3)\n",
+            "Batch labels: [1 1 0 0 1 0 1 0]\n",
+            "\n",
+            "Validation batch shape: (2, 128, 128, 3)\n",
+            "Validation batch labels: [0 0]\n"
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "name": "Welcome To Colab",
+      "toc_visible": true,
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
