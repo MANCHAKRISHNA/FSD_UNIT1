@@ -1,0 +1,144 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MANCHAKRISHNA/FSD_UNIT1/blob/main/Welcome_To_Colab.ipynb6\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Module 2: Comparative Analysis of Keras and PyTorch Models\n",
+        "\n",
+        "import numpy as np\n",
+        "from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 1: What does preds > 0.5 do?\n",
+        "# -----------------------------\n",
+        "# Explanation:\n",
+        "# In binary classification with Keras, model predictions are probabilities between 0 and 1.\n",
+        "# The line `preds = (preds > 0.5).astype(int).flatten()` converts probabilities to class labels:\n",
+        "# - preds > 0.5 → True if probability > 0.5, else False\n",
+        "# - .astype(int) → converts True/False to 1/0\n",
+        "# - .flatten() → converts array to 1D array\n",
+        "# This gives final binary predictions for evaluation.\n",
+        "\n",
+        "# Example:\n",
+        "# preds = np.array([[0.7], [0.3], [0.9]])\n",
+        "# preds = (preds > 0.5).astype(int).flatten()\n",
+        "# print(preds)  # Output: [1 0 1]\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 2: Print performance metrics for Keras model\n",
+        "# -----------------------------\n",
+        "# Function to print metrics\n",
+        "def print_metrics(y_true, y_pred):\n",
+        "    acc = accuracy_score(y_true, y_pred)\n",
+        "    prec = precision_score(y_true, y_pred)\n",
+        "    rec = recall_score(y_true, y_pred)\n",
+        "    f1 = f1_score(y_true, y_pred)\n",
+        "    cm = confusion_matrix(y_true, y_pred)\n",
+        "    print(\"Accuracy:\", acc)\n",
+        "    print(\"Precision:\", prec)\n",
+        "    print(\"Recall:\", rec)\n",
+        "    print(\"F1 Score:\", f1)\n",
+        "    print(\"Confusion Matrix:\\n\", cm)\n",
+        "\n",
+        "# Example Keras model predictions\n",
+        "# Replace with your actual labels and predictions\n",
+        "y_true_keras = np.array([0,1,1,0,1,0,1])\n",
+        "y_pred_keras_probs = np.array([[0.2],[0.8],[0.6],[0.4],[0.9],[0.3],[0.7]])\n",
+        "y_pred_keras = (y_pred_keras_probs > 0.5).astype(int).flatten()\n",
+        "\n",
+        "print(\"Keras Model Metrics:\")\n",
+        "print_metrics(y_true_keras, y_pred_keras)\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 3: What is the significance of the F1 score?\n",
+        "# -----------------------------\n",
+        "# Explanation:\n",
+        "# F1 score is the harmonic mean of precision and recall:\n",
+        "# F1 = 2 * (precision * recall) / (precision + recall)\n",
+        "# Significance:\n",
+        "# - Balances precision and recall in cases of imbalanced datasets\n",
+        "# - High F1 score means the model has a good balance of correctly identifying positives\n",
+        "#   while minimizing false positives and false negatives\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 4: Print performance metrics for PyTorch model\n",
+        "# -----------------------------\n",
+        "# Example PyTorch model predictions\n",
+        "# Replace with your actual PyTorch validation labels and predictions\n",
+        "y_true_torch = np.array([0,1,0,1,1,0,1])\n",
+        "y_pred_torch_probs = np.array([0.3,0.7,0.4,0.6,0.8,0.2,0.9])\n",
+        "y_pred_torch = (y_pred_torch_probs > 0.5).astype(int)\n",
+        "\n",
+        "print(\"\\nPyTorch Model Metrics:\")\n",
+        "print_metrics(y_true_torch, y_pred_torch)\n",
+        "\n",
+        "# -----------------------------\n",
+        "# Task 5: Total number of false negatives in the confusion matrix for PyTorch model\n",
+        "# -----------------------------\n",
+        "cm_torch = confusion_matrix(y_true_torch, y_pred_torch)\n",
+        "# In confusion matrix: [[TN, FP], [FN, TP]]\n",
+        "false_negatives = cm_torch[1,0]\n",
+        "print(\"\\nTotal number of False Negatives (PyTorch):\", false_negatives)"
+      ],
+      "metadata": {
+        "id": "L0cbTbmOXxj7",
+        "outputId": "63487d17-d8e6-4666-b285-def2217d6fb4",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Keras Model Metrics:\n",
+            "Accuracy: 1.0\n",
+            "Precision: 1.0\n",
+            "Recall: 1.0\n",
+            "F1 Score: 1.0\n",
+            "Confusion Matrix:\n",
+            " [[3 0]\n",
+            " [0 4]]\n",
+            "\n",
+            "PyTorch Model Metrics:\n",
+            "Accuracy: 1.0\n",
+            "Precision: 1.0\n",
+            "Recall: 1.0\n",
+            "F1 Score: 1.0\n",
+            "Confusion Matrix:\n",
+            " [[3 0]\n",
+            " [0 4]]\n",
+            "\n",
+            "Total number of False Negatives (PyTorch): 0\n"
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "name": "Welcome To Colab",
+      "toc_visible": true,
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
